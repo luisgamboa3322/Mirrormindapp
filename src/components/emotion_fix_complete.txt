@@ -1,0 +1,10 @@
+          <div className="space-y-4">
+            {data.emotions.map((emotion) => 
+              React.createElement(EmotionBar, {
+                key: emotion.name,
+                name: emotion.name,
+                value: emotion.value,
+                color: emotion.color
+              })
+            )}
+          </div>

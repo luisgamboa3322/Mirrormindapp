@@ -1,8 +1,10 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { WelcomeScreen } from "./components/WelcomeScreen";
 import { OnboardingScreen, UserProfile } from "./components/OnboardingScreen";
 import { HomeScreen } from "./components/HomeScreen";
 import { AnalysisScreen } from "./components/AnalysisScreen";
+import { VoiceRecordingScreen } from "./components/VoiceRecordingScreen";
+import { FaceRecordingScreen } from "./components/FaceRecordingScreen";
 import { ProgressScreen } from "./components/ProgressScreen";
 import { ProfileScreen } from "./components/ProfileScreen";
 import { PortfolioScreen } from "./components/PortfolioScreen";
@@ -10,8 +12,10 @@ import { AppComingSoon } from "./components/AppComingSoon";
 import { IncidentManagementScreen } from "./components/IncidentManagementScreen";
 import { LowFidelityScreen } from "./components/LowFidelityScreen";
 import { BottomNav } from "./components/BottomNav";
+import { AudioAnalysisResult } from "./hooks/useAudioAnalysis";
+import { FaceAnalysisResult } from "./hooks/useFaceAnalysis";
 
-type Screen = 'welcome' | 'onboarding' | 'home' | 'analysis' | 'progress' | 'profile' | 'portfolio' | 'coming-soon' | 'incidents' | 'wireframes';
+type Screen = 'welcome' | 'onboarding' | 'home' | 'voice-recording' | 'face-recording' | 'analysis' | 'progress' | 'profile' | 'portfolio' | 'coming-soon' | 'incidents' | 'wireframes';
 type AnalysisType = 'voice' | 'face' | 'text';
 
 export default function App() {
@@ -20,6 +24,8 @@ export default function App() {
   const [analysisType, setAnalysisType] = useState<AnalysisType>('voice');
   const [comingSoonApp, setComingSoonApp] = useState<'BioTune' | 'Silencio'>('BioTune');
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [voiceAnalysisResult, setVoiceAnalysisResult] = useState<AudioAnalysisResult | null>(null);
+  const [faceAnalysisResult, setFaceAnalysisResult] = useState<FaceAnalysisResult | null>(null);
 
   const handleStart = () => {
     setCurrentScreen('onboarding');
@@ -32,12 +38,40 @@ export default function App() {
 
   const handleAnalyze = (type: AnalysisType) => {
     setAnalysisType(type);
+    if (type === 'voice') {
+      setCurrentScreen('voice-recording');
+    } else if (type === 'face') {
+      setCurrentScreen('face-recording');
+    } else {
+      setCurrentScreen('analysis');
+    }
+  };
+
+  const handleVoiceAnalysisComplete = (result: AudioAnalysisResult) => {
+    setVoiceAnalysisResult(result);
     setCurrentScreen('analysis');
+  };
+
+  const handleFaceAnalysisComplete = (result: FaceAnalysisResult) => {
+    setFaceAnalysisResult(result);
+    setCurrentScreen('analysis');
+  };
+
+  const handleBackFromVoiceRecording = () => {
+    setCurrentScreen('home');
+    setActiveTab('home');
+  };
+
+  const handleBackFromFaceRecording = () => {
+    setCurrentScreen('home');
+    setActiveTab('home');
   };
 
   const handleBackFromAnalysis = () => {
     setCurrentScreen('home');
     setActiveTab('home');
+    setVoiceAnalysisResult(null);
+    setFaceAnalysisResult(null);
   };
 
   const handleTabChange = (tab: 'home' | 'progress' | 'profile' | 'portfolio') => {
@@ -101,8 +135,27 @@ export default function App() {
             <HomeScreen onAnalyze={handleAnalyze} userName={userProfile?.name} />
           )}
           
+          {currentScreen === 'voice-recording' && (
+            <VoiceRecordingScreen 
+              onBack={handleBackFromVoiceRecording}
+              onAnalysisComplete={handleVoiceAnalysisComplete}
+            />
+          )}
+          
+          {currentScreen === 'face-recording' && (
+            <FaceRecordingScreen 
+              onBack={handleBackFromFaceRecording}
+              onAnalysisComplete={handleFaceAnalysisComplete}
+            />
+          )}
+          
           {currentScreen === 'analysis' && (
-            <AnalysisScreen type={analysisType} onBack={handleBackFromAnalysis} />
+            <AnalysisScreen 
+              type={analysisType} 
+              onBack={handleBackFromAnalysis}
+              voiceAnalysisResult={analysisType === 'voice' ? voiceAnalysisResult : undefined}
+              faceAnalysisResult={analysisType === 'face' ? faceAnalysisResult : undefined}
+            />
           )}
           
           {currentScreen === 'progress' && (
@@ -135,8 +188,15 @@ export default function App() {
         </div>
       </div>
 
-      {/* Bottom Navigation - Only show when not on welcome, onboarding, analysis, coming-soon, incidents, or wireframes screen */}
-      {currentScreen !== 'welcome' && currentScreen !== 'onboarding' && currentScreen !== 'analysis' && currentScreen !== 'coming-soon' && currentScreen !== 'incidents' && currentScreen !== 'wireframes' && (
+      {/* Bottom Navigation - Only show when not on welcome, onboarding, voice-recording, face-recording, analysis, coming-soon, incidents, or wireframes screen */}
+      {currentScreen !== 'welcome' && 
+       currentScreen !== 'onboarding' && 
+       currentScreen !== 'voice-recording' && 
+       currentScreen !== 'face-recording' && 
+       currentScreen !== 'analysis' && 
+       currentScreen !== 'coming-soon' && 
+       currentScreen !== 'incidents' && 
+       currentScreen !== 'wireframes' && (
         <BottomNav activeTab={activeTab} onTabChange={handleTabChange} />
       )}
     </div>

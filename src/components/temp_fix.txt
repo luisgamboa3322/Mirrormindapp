@@ -1,0 +1,11 @@
+        {/* Emotion Breakdown */}
+        <div>
+          <h3 className="mb-4">Desglose Emocional</h3>
+          <div className="space-y-4">
+            {data.emotions.map((emotion) => (
+              <div key={emotion.name}>
+                <EmotionBar name={emotion.name} value={emotion.value} color={emotion.color} />
+              </div>
+            ))}
+          </div>
+        </div>

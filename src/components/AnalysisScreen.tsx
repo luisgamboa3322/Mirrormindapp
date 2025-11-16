@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { Card } from "./ui/card";
 import { Progress } from "./ui/progress";
@@ -12,12 +12,21 @@ import {
   Brain,
   Lightbulb,
   TrendingUp,
-  CheckCircle2
+  CheckCircle2,
+  Mic,
+  Volume2,
+  Clock,
+  Camera,
+  Eye
 } from "lucide-react";
+import { AudioAnalysisResult } from "../hooks/useAudioAnalysis";
+import { FaceAnalysisResult } from "../hooks/useFaceAnalysis";
 
 interface AnalysisScreenProps {
   type: 'voice' | 'face' | 'text';
   onBack: () => void;
+  voiceAnalysisResult?: AudioAnalysisResult | null;
+  faceAnalysisResult?: FaceAnalysisResult | null;
 }
 
 const analysisData = {
@@ -71,13 +80,44 @@ const analysisData = {
   }
 };
 
-export function AnalysisScreen({ type, onBack }: AnalysisScreenProps) {
+export function AnalysisScreen({ type, onBack, voiceAnalysisResult, faceAnalysisResult }: AnalysisScreenProps) {
   const [isAnalyzing, setIsAnalyzing] = useState(true);
   const [progress, setProgress] = useState(0);
-  const data = analysisData[type];
+
+  // Usar datos reales si están disponibles, sino usar datos simulados
+  const actualData = (() => {
+    if (type === 'voice' && voiceAnalysisResult) {
+      return {
+        title: "Análisis de Voz - Real",
+        emoji: "🎤",
+        emotions: voiceAnalysisResult.emotions,
+        mainEmotion: voiceAnalysisResult.mainEmotion,
+        insights: voiceAnalysisResult.insights
+      };
+    }
+    if (type === 'face' && faceAnalysisResult) {
+      return {
+        title: "Análisis Facial - Real",
+        emoji: "😊",
+        emotions: faceAnalysisResult.emotions,
+        mainEmotion: faceAnalysisResult.mainEmotion,
+        insights: faceAnalysisResult.insights
+      };
+    }
+    return analysisData[type];
+  })();
+
+  const data = actualData;
 
   useEffect(() => {
-    // Simulate analysis process
+    // Si tenemos resultados reales, no mostrar la simulación
+    if ((type === 'voice' && voiceAnalysisResult) || (type === 'face' && faceAnalysisResult)) {
+      setIsAnalyzing(false);
+      setProgress(100);
+      return;
+    }
+
+    // Simulate analysis process para datos simulados
     const timer = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 100) {
@@ -90,9 +130,11 @@ export function AnalysisScreen({ type, onBack }: AnalysisScreenProps) {
     }, 300);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [voiceAnalysisResult, faceAnalysisResult, type]);
 
   if (isAnalyzing) {
+    const isReal = (type === 'voice' && voiceAnalysisResult) || (type === 'face' && faceAnalysisResult);
+    
     return (
       <div className="h-full flex flex-col items-center justify-center p-6 bg-gradient-to-b from-purple-50 to-blue-50">
         <div className="max-w-md w-full space-y-6">
@@ -102,7 +144,10 @@ export function AnalysisScreen({ type, onBack }: AnalysisScreenProps) {
             </div>
             <h2>Analizando {data.title.toLowerCase()}</h2>
             <p className="text-muted-foreground">
-              La IA está procesando tus datos emocionales...
+              {isReal 
+                ? `Procesando análisis ${type === 'voice' ? 'de voz' : 'facial'} real...` 
+                : 'La IA está procesando tus datos emocionales...'
+              }
             </p>
           </div>
           <div className="space-y-2">
@@ -113,6 +158,9 @@ export function AnalysisScreen({ type, onBack }: AnalysisScreenProps) {
       </div>
     );
   }
+
+  const isReal = (type === 'voice' && voiceAnalysisResult) || (type === 'face' && faceAnalysisResult);
+  const currentResult = type === 'voice' ? voiceAnalysisResult : faceAnalysisResult;
 
   return (
     <div className="h-full overflow-y-auto">
@@ -130,32 +178,143 @@ export function AnalysisScreen({ type, onBack }: AnalysisScreenProps) {
           <div className="text-5xl mb-2">{data.emoji}</div>
           <h2>{data.title}</h2>
           <Badge className="bg-white/20 text-white border-0">
-            Análisis completado
+            {isReal ? 'Análisis Real completado' : 'Análisis completado'}
           </Badge>
         </div>
       </div>
 
-      {/* Results */}
       <div className="p-6 space-y-6">
         {/* Main Emotion */}
         <Card className="p-6 bg-gradient-to-br from-purple-50 to-blue-50 border-purple-200">
           <div className="flex items-center gap-3 mb-2">
             <CheckCircle2 className="w-5 h-5 text-purple-600" />
             <h3>Emoción Principal</h3>
+            {isReal && (
+              <Badge variant="secondary" className="ml-auto">
+                Real
+              </Badge>
+            )}
           </div>
           <p className="text-3xl mb-1">{data.mainEmotion}</p>
           <p className="text-sm text-muted-foreground">
-            Detectada con alta confianza
+            {currentResult 
+              ? `Detectada con ${Math.round(currentResult.confidence * 100)}% de confianza`
+              : 'Detectada con alta confianza'
+            }
           </p>
         </Card>
+
+        {/* Características de audio (solo para análisis de voz real) */}
+        {type === 'voice' && voiceAnalysisResult && voiceAnalysisResult.audioFeatures && (
+          <Card className="p-6 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
+            <div className="flex items-center gap-2 mb-4">
+              <Volume2 className="w-5 h-5 text-green-600" />
+              <h3>Características de Tu Voz</h3>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span>Tono (Hz)</span>
+                  <span className="font-medium">{Math.round(voiceAnalysisResult.audioFeatures.pitch)}</span>
+                </div>
+                <Progress value={Math.min((voiceAnalysisResult.audioFeatures.pitch / 400) * 100, 100)} className="h-2" />
+              </div>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span>Volumen</span>
+                  <span className="font-medium">{Math.round(voiceAnalysisResult.audioFeatures.volume * 100)}%</span>
+                </div>
+                <Progress value={voiceAnalysisResult.audioFeatures.volume * 100} className="h-2" />
+              </div>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span>Velocidad</span>
+                  <span className="font-medium">{voiceAnalysisResult.audioFeatures.speakingRate.toFixed(1)}x</span>
+                </div>
+                <Progress value={Math.min(voiceAnalysisResult.audioFeatures.speakingRate * 50, 100)} className="h-2" />
+              </div>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span>Energía</span>
+                  <span className="font-medium">{Math.round(voiceAnalysisResult.audioFeatures.energy * 100)}%</span>
+                </div>
+                <Progress value={voiceAnalysisResult.audioFeatures.energy * 100} className="h-2" />
+              </div>
+            </div>
+          </Card>
+        )}
+
+        {/* Características faciales (solo para análisis facial real) */}
+        {type === 'face' && faceAnalysisResult && faceAnalysisResult.faceFeatures && (
+          <Card className="p-6 bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200">
+            <div className="flex items-center gap-2 mb-4">
+              <Eye className="w-5 h-5 text-blue-600" />
+              <h3>Características de Tu Rostro</h3>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span>Simetría</span>
+                  <span className="font-medium">{Math.round(faceAnalysisResult.faceFeatures.symmetryScore * 100)}%</span>
+                </div>
+                <Progress value={faceAnalysisResult.faceFeatures.symmetryScore * 100} className="h-2" />
+              </div>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span>Apertura ojos</span>
+                  <span className="font-medium">{Math.round(faceAnalysisResult.faceFeatures.eyeOpenness)}%</span>
+                </div>
+                <Progress value={Math.min(faceAnalysisResult.faceFeatures.eyeOpenness, 100)} className="h-2" />
+              </div>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span>Apertura boca</span>
+                  <span className="font-medium">{Math.round(faceAnalysisResult.faceFeatures.mouthOpenness)}%</span>
+                </div>
+                <Progress value={Math.min(faceAnalysisResult.faceFeatures.mouthOpenness, 100)} className="h-2" />
+              </div>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span>Confianza</span>
+                  <span className="font-medium">{Math.round(faceAnalysisResult.faceFeatures.confidence * 100)}%</span>
+                </div>
+                <Progress value={faceAnalysisResult.faceFeatures.confidence * 100} className="h-2" />
+              </div>
+            </div>
+          </Card>
+        )}
+
+        {/* Transcripción (solo para análisis de voz real) */}
+        {type === 'voice' && voiceAnalysisResult && voiceAnalysisResult.transcript && (
+          <Card className="p-6 bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200">
+            <div className="flex items-center gap-2 mb-4">
+              <Mic className="w-5 h-5 text-blue-600" />
+              <h3>Lo que dijiste</h3>
+            </div>
+            <div className="bg-white p-4 rounded-lg border">
+              <p className="text-sm leading-relaxed italic">
+                "{voiceAnalysisResult.transcript}"
+              </p>
+            </div>
+            <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
+              <Clock className="w-3 h-3" />
+              <span>Transcripción en tiempo real</span>
+            </div>
+          </Card>
+        )}
 
         {/* Emotion Breakdown */}
         <div>
           <h3 className="mb-4">Desglose Emocional</h3>
           <div className="space-y-4">
-            {data.emotions.map((emotion) => (
-              <EmotionBar key={emotion.name} {...emotion} />
-            ))}
+            {data.emotions.map((emotion) => 
+              React.createElement(EmotionBar, {
+                key: emotion.name,
+                name: emotion.name,
+                value: emotion.value,
+                color: emotion.color
+              })
+            )}
           </div>
         </div>
 
@@ -183,8 +342,10 @@ export function AnalysisScreen({ type, onBack }: AnalysisScreenProps) {
             <div>
               <h4>Recomendación</h4>
               <p className="text-sm text-muted-foreground mt-2">
-                Continúa manteniendo tus hábitos positivos. Considera practicar 
-                ejercicios de respiración para reducir los niveles de ansiedad detectados.
+                {currentResult
+                  ? `Basado en tu análisis real de ${type === 'voice' ? 'voz' : 'rostro'}, continua manteniendo tus hábitos positivos. Los patrones detectados muestran un estado emocional ${type === 'voice' ? 'equilibrado' : 'auténtico'}.`
+                  : "Continúa manteniendo tus hábitos positivos. Considera practicar ejercicios de respiración para reducir los niveles de ansiedad detectados."
+                }
               </p>
             </div>
           </div>
