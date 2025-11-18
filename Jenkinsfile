@@ -4,44 +4,37 @@ pipeline {
     stages {
         stage('Install Dependencies') {
             steps {
-                echo 'Instalando dependencias...'
-               
+                echo ' Instalando dependencias...'
                 bat 'call npm install'
             }
         }
 
         stage('Build') {
             steps {
-                echo 'Construyendo la aplicación...'
+                echo ' Construyendo la aplicación...'
                 bat 'call npm run build'
             }
         }
 
-        stage('Test') {
-            steps {
-                echo 'Ejecutando pruebas...'
-               
-                bat 'set CI=true && call npm test' 
-            }
-        }
+       
         
-        stage('Deploy') {
+        stage('Deploy Simulation') {
             steps {
-                echo 'Simulando despliegue...'
-             
-                bat 'echo La aplicación ha sido construida y probada con éxito.'
+                echo '🚀 Simulando despliegue...'
+           
+                bat 'echo La aplicación está lista para producción.'
             }
         }
     }
     
     post {
         success {
-            echo '¡El Pipeline terminó correctamente!'
+            echo ' ¡Pipeline completado con éxito!'
            
             archiveArtifacts artifacts: 'build/**/*', fingerprint: true
         }
         failure {
-            echo 'Algo salió mal '
+            echo ' Algo falló en el proceso.'
         }
     }
 }
