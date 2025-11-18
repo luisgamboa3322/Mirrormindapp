@@ -53,6 +53,7 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
     initialEmotion: "",
     emotionalGoal: ""
   });
+  const [nameError, setNameError] = useState<string | null>(null);
 
   const totalSteps = 4;
   const progress = (step / totalSteps) * 100;
@@ -68,7 +69,7 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
   const canProceed = () => {
     switch (step) {
       case 1:
-        return formData.name.trim() !== "";
+        return formData.name.trim() !== "" && !/\d/.test(formData.name);
       case 2:
         return formData.age.trim() !== "" && formData.gender !== "";
       case 3:
@@ -117,12 +118,23 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
                     type="text"
                     placeholder="Tu nombre"
                     value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setFormData({ ...formData, name: value });
+                      if (value.trim() === "") {
+                        setNameError("El nombre es obligatorio");
+                      } else if (/\d/.test(value)) {
+                        setNameError("El nombre no puede contener números");
+                      } else {
+                        setNameError(null);
+                      }
+                    }}
                     className="mt-2"
                   />
                   <p className="text-xs text-muted-foreground mt-2">
                     Usaremos tu nombre para personalizar tu experiencia
                   </p>
+                  {nameError && <p className="text-red-500 text-sm mt-1">{nameError}</p>}
                 </div>
               </div>
             </Card>
