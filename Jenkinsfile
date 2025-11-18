@@ -30,7 +30,7 @@ pipeline {
             steps {
                 echo ' Desplegando a la Nube de Netlify...'
  
-                bat 'netlify deploy --dir=build --prod'
+                bat 'call npx netlify-cli deploy --dir=build --prod'
             }
         }
     }
