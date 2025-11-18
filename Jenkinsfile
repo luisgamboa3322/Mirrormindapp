@@ -12,10 +12,9 @@ pipeline {
 
     }
 }
-stage('Deploy'){
+stage('Deploy') {
     steps {
-        sh "docker-compose down -v"
-        
+        bat 'echo Desplegando...' 
     }
 }
     }
