@@ -1,21 +1,47 @@
 pipeline {
     agent any
+
     stages {
-        stage('Build'){
+        stage('Install Dependencies') {
             steps {
-                echo "etapa BUILD no disponible"
+                echo 'Instalando dependencias...'
+               
+                bat 'call npm install'
             }
         }
-        stage('Test'){
-            steps {
-                echo"etapa TEST no disponible"
 
+        stage('Build') {
+            steps {
+                echo 'Construyendo la aplicación...'
+                bat 'call npm run build'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                echo 'Ejecutando pruebas...'
+               
+                bat 'set CI=true && call npm test' 
+            }
+        }
+        
+        stage('Deploy') {
+            steps {
+                echo 'Simulando despliegue...'
+             
+                bat 'echo La aplicación ha sido construida y probada con éxito.'
+            }
+        }
     }
-}
-stage('Deploy') {
-    steps {
-        bat 'echo Desplegando...' 
-    }
-}
+    
+    post {
+        success {
+            echo '¡El Pipeline terminó correctamente!'
+           
+            archiveArtifacts artifacts: 'build/**/*', fingerprint: true
+        }
+        failure {
+            echo 'Algo salió mal '
+        }
     }
 }
