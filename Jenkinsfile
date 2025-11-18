@@ -1,6 +1,15 @@
 pipeline {
     agent any
 
+
+    environment {
+
+        NETLIFY_AUTH_TOKEN = 'nfp_389FBTWXHz2YDQVfqgbppfgE6tZ2U92T70bf'
+        
+
+        NETLIFY_SITE_ID = '521a2993-5862-4d1d-9dfc-9c1d3e9f2102'
+    }
+
     stages {
         stage('Install Dependencies') {
             steps {
@@ -16,25 +25,24 @@ pipeline {
             }
         }
 
-       
-        
-        stage('Deploy Simulation') {
+
+        stage('Deploy to Cloud') {
             steps {
-                echo '🚀 Simulando despliegue...'
-           
-                bat 'echo La aplicación está lista para producción.'
+                echo ' Desplegando a la Nube de Netlify...'
+ 
+                bat 'netlify deploy --dir=build --prod'
             }
         }
     }
     
     post {
         success {
-            echo ' ¡Pipeline completado con éxito!'
-           
+            echo ' ¡Felicidades! Tu app ya está visible en internet.'
+   
             archiveArtifacts artifacts: 'build/**/*', fingerprint: true
         }
         failure {
-            echo ' Algo falló en el proceso.'
+            echo ' Algo falló en el despliegue.'
         }
     }
 }
