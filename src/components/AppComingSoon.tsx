@@ -10,7 +10,7 @@ interface AppComingSoonProps {
 
 const appDetails = {
   BioTune: {
-    description: 'Optimización de ritmos biológicos y sincronización circadiana',
+    description: 'Optimización de ritmos biológicos y sincronización cardiaca',
     emoji: '🌊',
     color: 'from-green-500 to-emerald-500',
     features: [
