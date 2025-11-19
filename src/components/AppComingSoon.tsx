@@ -23,7 +23,7 @@ const appDetails = {
     currentPhase: 'Investigación y Desarrollo'
   },
   Silencio: {
-    description: 'Espacios de calma digital y desconexión consciente',
+    description: 'Espacios de calmado digital y desconexión consciente',
     emoji: '🧘‍♀️',
     color: 'from-indigo-500 to-cyan-500',
     features: [
