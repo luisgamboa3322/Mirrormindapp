@@ -103,7 +103,7 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
               <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
                 <User className="w-8 h-8 text-white" />
               </div>
-              <h2>¡Bienvenido/a a MirrorMind!</h2>
+              <h2>¡Bienvenido a MirrorMind!</h2>
               <p className="text-muted-foreground">
                 Comencemos conociendo un poco sobre ti para personalizar tu experiencia
               </p>
