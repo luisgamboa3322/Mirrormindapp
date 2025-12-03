@@ -316,7 +316,7 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
           <p className="text-xs text-center text-muted-foreground">
             Al continuar, aceptas que MirrorMind es un prototipo educativo.
             <br />
-            No está diseñado para diagnóstico médico profesional.
+            No está diseñado para diagnóstico médico profesional(OJO).
           </p>
         )}
       </div>
