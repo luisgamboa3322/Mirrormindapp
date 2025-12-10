@@ -23,7 +23,7 @@ export function HomeScreen({ onAnalyze, userName }: HomeScreenProps) {
         <div className="flex items-center justify-between mb-6">
           <div>
             <p className="text-purple-100">Hola{userName ? `, ${userName}` : ''}</p>
-            <h2 className="text-2xl">¿Cómo te sientes hoy?</h2>
+            <h2 className="text-2xl">¿Cómo te sientes hoy usuario?</h2>
           </div>
           <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
             <Sparkles className="w-6 h-6" />
