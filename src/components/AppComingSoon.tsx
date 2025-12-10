@@ -14,7 +14,7 @@ const appDetails = {
     emoji: '🌊',
     color: 'from-green-500 to-emerald-500',
     features: [
-      'Monitoreo inteligente del sueño',
+      'Monitoreo inteligente del sueño de cada usuario',
       'Optimización de exposición lumínica',
       'Rutinas personalizadas de energía',
       'Sincronización con dispositivos wearables'
